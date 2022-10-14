@@ -74,7 +74,7 @@ impl Host {
     ///
     /// Check out [this](https://forum.image-line.com/viewtopic.php?p=26368#p26368) post for more
     /// info about an internal controller implemenation.
-    pub fn on_controller(&mut self, tag: plugin::Tag, index: usize, value: u16) {
+    pub fn on_controller(&mut self, tag: plugin::Tag, index: usize, value: u64) {
         unsafe {
             host_on_controller(
                 *self.host_ptr.get_mut(),
@@ -221,7 +221,7 @@ impl Host {
 
     /// Get one of the buffers.
     ///
-    /// - `kind` the kind of the buffer you want to get 
+    /// - `kind` the kind of the buffer you want to get
     ///   (see [`host::Buffer`](../host/enum.Buffer.html)).
     /// - `length` is the buffer length (use the length of the output buffer passed to the render
     ///   function).

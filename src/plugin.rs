@@ -46,9 +46,45 @@ macro_rules! create_plugin {
                 $crate::plugin::Tag(tag as $crate::intptr_t),
             );
             let adapter = $crate::plugin::PluginAdapter(Box::new(plugin));
-            create_plug_instance_c(host, tag, Box::into_raw(Box::new(adapter)) as *mut c_void)
+            let zelf =
+                create_plug_instance_c(host, tag, Box::into_raw(Box::new(adapter)) as *mut c_void);
+            PluginProxy::from(zelf).inform_adapter();
+            zelf
         }
     };
+}
+
+/// Questionable design decisions
+#[derive(Debug)]
+pub struct PluginProxy(*mut c_void);
+
+unsafe impl Send for PluginProxy {}
+unsafe impl Sync for PluginProxy {}
+
+impl From<*mut c_void> for PluginProxy {
+    fn from(v: *mut c_void) -> Self {
+        Self(v)
+    }
+}
+
+impl PluginProxy {
+    /// Set the editor hwnd in the plugin struct
+    pub fn set_editor_hwnd(&self, hwnd: *mut c_void) {
+        extern "C" {
+            fn plugin_set_editor_hwnd_c(plug_instance: *mut c_void, hwnd: *mut c_void);
+        }
+        unsafe {
+            plugin_set_editor_hwnd_c(self.0, hwnd);
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn inform_adapter(&self) {
+        extern "C" {
+            fn plugin_proxy_c(plug_instance: *mut c_void);
+        }
+        unsafe { plugin_proxy_c(self.0) }
+    }
 }
 
 /// This trait must be implemented for your plugin.
@@ -144,6 +180,8 @@ pub trait Plugin: std::fmt::Debug + RefUnwindSafe + Send + Sync + 'static {
     ///
     /// This gets called with a new buffered message to the plugin itself.
     fn loop_in(&mut self, _message: ValuePtr) {}
+
+    fn proxy(&mut self, handle: PluginProxy) {}
 }
 
 /// This structure holds some information about the plugin that is used by the host. It is the
@@ -654,4 +692,10 @@ unsafe extern "C" fn plugin_load_state(adapter: *mut PluginAdapter, stream: *mut
 #[no_mangle]
 unsafe extern "C" fn plugin_loop_in(adapter: *mut PluginAdapter, message: intptr_t) {
     (*adapter).0.loop_in(ValuePtr(message));
+}
+
+#[doc(hidden)]
+#[no_mangle]
+unsafe extern "C" fn plugin_proxy(adapter: *mut PluginAdapter, wrapper: PluginProxy) {
+    (*adapter).0.proxy(wrapper)
 }

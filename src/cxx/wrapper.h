@@ -71,6 +71,8 @@ class PluginWrapper : public TFruityPlug {
                                                   int flags);
     virtual void _stdcall OutputVoice_Kill(TVoiceHandle handle);
 
+    void PluginProxy();
+
   protected:
     TFruityPlugHost *host;
     PluginAdapter *adapter;
@@ -101,6 +103,10 @@ extern "C" void plugin_midi_in(PluginAdapter *adapter, int &message);
 extern "C" void plugin_save_state(PluginAdapter *adapter, IStream *istream);
 extern "C" void plugin_load_state(PluginAdapter *adapter, IStream *istream);
 extern "C" void plugin_loop_in(PluginAdapter *adapter, intptr_t message);
+
+extern "C" void plugin_set_editor_hwnd_c(PluginWrapper *wrapper, void *hwnd);
+extern "C" void plugin_proxy(PluginAdapter *adapter, PluginWrapper *wrapper);
+extern "C" void plugin_proxy_c(PluginWrapper *wrapper);
 
 // Voice handler
 extern "C" intptr_t voice_handler_trigger(PluginAdapter *adapter, Params params,

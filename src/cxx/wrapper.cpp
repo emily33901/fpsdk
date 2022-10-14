@@ -64,6 +64,12 @@ void *create_plug_instance_c(void *host, intptr_t tag, void *adapter) {
     return wrapper;
 }
 
+void plugin_set_editor_hwnd_c(PluginWrapper *wrapper, void *hwnd) {
+    wrapper->EditorHandle = (HWND)hwnd;
+}
+
+void plugin_proxy_c(PluginWrapper *wrapper) { wrapper->PluginProxy(); }
+
 PluginWrapper::PluginWrapper(TFruityPlugHost *host_ptr, TPluginTag tag,
                              PluginAdapter *adap, PFruityPlugInfo info) {
     Info = info;
@@ -221,6 +227,8 @@ int _stdcall PluginWrapper::OutputVoice_ProcessEvent(TOutVoiceHandle handle,
 void _stdcall PluginWrapper::OutputVoice_Kill(TVoiceHandle handle) {
     out_voice_handler_kill(adapter, handle);
 }
+
+void PluginWrapper::PluginProxy() { plugin_proxy(adapter, this); }
 
 // host
 intptr_t host_on_message(void *host, TPluginTag tag, FlMessage message) {
