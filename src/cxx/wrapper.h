@@ -177,7 +177,8 @@ extern "C" intptr_t init_p_notes_params(int target, int flags, int ch_num,
                                         int pat_num, TNoteParams *notes,
                                         int len);
 
-extern "C" void free_rbox_raw(void *raw_ptr);
+extern "C" void free_rbox_pluginadapter(void *raw_ptr);
+extern "C" void free_rbox_plugininfo(void *raw_ptr);
 extern "C" void free_rstring(char *raw_str);
 // FFI to make C string (`char *`) managed by C side. Because `char *`
 // produced by `CString::into_raw` leads to memory leak. Here's what docs

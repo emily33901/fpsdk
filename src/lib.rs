@@ -1002,18 +1002,6 @@ unsafe extern "C" fn fplog(message: *const c_char) {
     debug!("{}", CStr::from_ptr(message).to_string_lossy());
 }
 
-/// FFI to free rust's Box::into_raw pointer.
-///
-/// It supposed to be used internally. Don't use it.
-///
-/// # Safety
-///
-/// Unsafe
-#[no_mangle]
-unsafe extern "C" fn free_rbox_raw(raw_ptr: *mut c_void) {
-    let _ = Box::from_raw(raw_ptr);
-}
-
 /// FFI to free rust's CString pointer.
 ///
 /// It supposed to be used internally. Don't use it.

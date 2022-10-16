@@ -8,7 +8,7 @@ use std::os::raw::{c_char, c_int, c_void};
 use std::panic::RefUnwindSafe;
 
 use hresult::HRESULT;
-use log::{debug, error};
+use log::{debug, error, info};
 
 use crate::host::{self, Event, GetName, Host};
 use crate::voice::ReceiveVoiceHandler;
@@ -181,6 +181,8 @@ pub trait Plugin: std::fmt::Debug + RefUnwindSafe + Send + Sync + 'static {
     /// This gets called with a new buffered message to the plugin itself.
     fn loop_in(&mut self, _message: ValuePtr) {}
 
+    /// Passes a proxy to the wrapper object which can be used to set
+    /// some parameters that FL Expects
     fn proxy(&mut self, handle: PluginProxy) {}
 }
 
@@ -478,6 +480,38 @@ fn check_hresult(result: HRESULT, read: usize, error_msg: &str) -> io::Result<us
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct PluginAdapter(pub Box<dyn Plugin>);
+
+impl Drop for PluginAdapter {
+    fn drop(&mut self) {
+        info!("Dropping PluginAdapter");
+    }
+}
+
+/// FFI to free rust's Box::into_raw pointer.
+///
+/// It supposed to be used internally. Don't use it.
+///
+/// # Safety
+///
+/// Unsafe
+#[doc(hidden)]
+#[no_mangle]
+unsafe extern "C" fn free_rbox_pluginadapter(raw_ptr: *mut PluginAdapter) {
+    let _ = Box::from_raw(raw_ptr);
+}
+
+/// FFI to free rust's Box::into_raw pointer.
+///
+/// It supposed to be used internally. Don't use it.
+///
+/// # Safety
+///
+/// Unsafe
+#[doc(hidden)]
+#[no_mangle]
+unsafe extern "C" fn free_rbox_plugininfo(raw_ptr: *mut Info) {
+    let _ = Box::from_raw(raw_ptr);
+}
 
 /// [`Plugin::info`](trait.Plugin.html#tymethod.info) FFI.
 ///

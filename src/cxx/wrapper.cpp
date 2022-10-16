@@ -56,7 +56,7 @@ void *create_plug_instance_c(void *host, intptr_t tag, void *adapter) {
                                                  (int)info->num_out_voices,
                                                  {*reserved}};
 
-    free_rbox_raw(info);
+    free_rbox_plugininfo(info);
 
     PluginWrapper *wrapper = new PluginWrapper(
         (TFruityPlugHost *)host, tag, (PluginAdapter *)adapter, c_info);
@@ -83,7 +83,7 @@ PluginWrapper::~PluginWrapper() {
     free(Info->LongName);
     free(Info->ShortName);
     delete Info;
-    free_rbox_raw(adapter);
+    free_rbox_pluginadapter(adapter);
 }
 
 void _stdcall PluginWrapper::SaveRestoreState(IStream *stream, BOOL save) {
