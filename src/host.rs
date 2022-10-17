@@ -764,7 +764,7 @@ impl From<FlMessage> for Message<'_> {
 
 impl Message<'_> {
     fn from_show_editor(message: FlMessage) -> Self {
-        if message.value == 1 {
+        if message.value == 0 {
             Message::ShowEditor(None)
         } else {
             Message::ShowEditor(Some(message.value as *mut c_void))
