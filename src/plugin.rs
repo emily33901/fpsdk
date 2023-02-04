@@ -48,7 +48,7 @@ macro_rules! create_plugin {
             let adapter = $crate::plugin::PluginAdapter(Box::new(plugin));
             let zelf =
                 create_plug_instance_c(host, tag, Box::into_raw(Box::new(adapter)) as *mut c_void);
-            PluginProxy::from(zelf).inform_adapter();
+            $crate::plugin::PluginProxy::from(zelf).inform_adapter();
             zelf
         }
     };
